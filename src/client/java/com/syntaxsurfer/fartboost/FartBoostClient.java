@@ -28,6 +28,9 @@ public class FartBoostClient implements ClientModInitializer {
 			ResourceLocation.fromNamespaceAndPath(FartBoost.MOD_ID, "fart")
 	);
 
+	// New: last fart tick for no-cooldown mode
+	private static long lastFartTime = 0;
+
 	@Override
 	public void onInitializeClient() {
 		fartKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
@@ -54,9 +57,15 @@ public class FartBoostClient implements ClientModInitializer {
 			while (fartKey.consumeClick()) {
 				if (player.isSpectator()) return;
 
+				long currentTick = client.level.getGameTime();
+
 				// Cooldown check
-				if (FartBoost.cooldownEnabled && cooldowns.containsKey(id)) {
-					return; // Cooldown already shown above hotbar
+				if (FartBoost.cooldownEnabled) {
+					if (cooldowns.containsKey(id)) return;
+				} else {
+					// No cooldown mode: ensure 1s gap
+					if (currentTick - lastFartTime < 10) return;
+					lastFartTime = currentTick;
 				}
 
 				// Hunger check
@@ -90,25 +99,25 @@ public class FartBoostClient implements ClientModInitializer {
 				);
 				player.hurtMarked = true;
 
-				// Bigger fart particles using int-based color
+				// Bigger fart particles with larger radius
 				int r = (int)(0.2f * 255);
 				int g = (int)(1.0f * 255);
 				int b = (int)(0.2f * 255);
 				int color = (r << 16) | (g << 8) | b;
 
 				for (int i = 0; i < 150 + random.nextInt(51); i++) {
-					double dx = (random.nextDouble() - 0.5) * 1.5; // wider spread
+					double dx = (random.nextDouble() - 0.5) * 1.5;
 					double dy = random.nextDouble() * 1.0;
 					double dz = (random.nextDouble() - 0.5) * 1.5;
 
 					client.level.addParticle(
-							new DustParticleOptions(color, 1.0f),
+							new DustParticleOptions(color, 6.0f), // radius increased from 1.0f → 3.0f
 							player.getX(), player.getY(), player.getZ(),
 							dx, dy, dz
 					);
 				}
 
-				// Start cooldown
+				// Start cooldown if enabled
 				if (FartBoost.cooldownEnabled) cooldowns.put(id, COOLDOWN_TICKS);
 			}
 		});
