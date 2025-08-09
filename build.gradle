@@ -1,74 +1,86 @@
 plugins {
-    id 'fabric-loom' version '1.10.1'
-    id 'maven-publish'
+	id 'fabric-loom' version "${loom_version}"
+	id 'maven-publish'
 }
 
-
-
-group = maven_group
-version = mod_version
+version = project.mod_version
+group = project.maven_group
 
 base {
-    archivesName = archives_base_name
+	archivesName = project.archives_base_name
+}
+
+repositories {
+	mavenCentral()
+	maven {
+		name = "Fabric"
+		url = "https://maven.fabricmc.net/"
+	}
 }
 
 loom {
-    splitEnvironmentSourceSets()
-    mods {
-        "fartboost" {
-            sourceSet sourceSets.main
-            sourceSet sourceSets.client
-        }
-    }
+	splitEnvironmentSourceSets()
+	mods {
+		"fartboost" {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+	}
 }
 
-
-repositories {
-    mavenCentral()
-    maven { url = "https://maven.fabricmc.net/" }
+fabricApi {
+	configureDataGeneration {
+		client = true
+	}
 }
 
 dependencies {
-    minecraft "com.mojang:minecraft:${minecraft_version}"
-    mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+	minecraft "com.mojang:minecraft:${minecraft_version}"
+	mappings loom.officialMojangMappings()
+	modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
-    // Client-specific modules
-    modImplementation "net.fabricmc.fabric-api:fabric-key-binding-api-v1:${fabric_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-lifecycle-events-v1:${fabric_version}"
+	// Add this if you use commands API
+	modImplementation "net.fabricmc.fabric-api:fabric-command-api-v2:${fabric_version}"
+
+	// Add this if you use client events or keybinding
+	modImplementation "net.fabricmc.fabric-api:fabric-key-binding-api-v1:${fabric_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-lifecycle-events-v1:${fabric_version}"
 }
 
 
 processResources {
-    inputs.property "version", project.version
-    filesMatching("fabric.mod.json") {
-        expand "version": inputs.properties.version
-    }
-}
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-    withSourcesJar()
+	inputs.property "version", project.version
+	filesMatching("fabric.mod.json") {
+		expand "version": inputs.properties.version
+	}
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.release.set(21)
+	it.options.release = 21
+}
+
+java {
+	withSourcesJar()
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 }
 
 jar {
-    from("LICENSE") {
-        rename { "${it}_${archivesBaseName}" }
-    }
+	inputs.property "archivesName", project.base.archivesName
+	from("LICENSE") {
+		rename { "${it}_${inputs.properties.archivesName}" }
+	}
 }
 
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId = archivesBaseName
-            from components.java
-        }
-    }
+	publications {
+		create("mavenJava", MavenPublication) {
+			artifactId = project.archives_base_name
+			from components.java
+		}
+	}
+	repositories {
+		// Add repositories to publish to here if needed
+	}
 }
