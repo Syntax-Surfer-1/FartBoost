@@ -1,9 +1,8 @@
 package com.syntaxsurfer.fartboost;
 
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,15 +17,15 @@ public class FartBoost implements ModInitializer {
 		LOGGER.info("FartBoost initialized! Prepare for liftoff 💨");
 	}
 
-	public static Text greenMsg(String msg) {
-		return Text.literal(msg).formatted(Formatting.GREEN);
+	public static Component greenMsg(String msg) {
+		return Component.literal(msg).withStyle(ChatFormatting.GREEN);
 	}
 
-	public static Text yellowMsg(String msg) {
-		return Text.literal(msg).formatted(Formatting.YELLOW);
+	public static Component yellowMsg(String msg) {
+		return Component.literal(msg).withStyle(ChatFormatting.YELLOW);
 	}
 
-	public static Text redMsg(String msg) {
-		return Text.literal(msg).formatted(Formatting.RED);
+	public static Component redMsg(String msg) {
+		return Component.literal(msg).withStyle(ChatFormatting.RED);
 	}
 }
