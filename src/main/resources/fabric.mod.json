@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "fartboost",
+  "version": "1.0.0",
+  "name": "Fart Boost",
+  "description": "Press G to unleash a mighty fart boost!",
+  "authors": ["Syntax_Surfer"],
+  "contact": {},
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.syntaxsurfer.fartboost.FartMod"
+    ],
+    "client": [
+      "com.syntaxsurfer.fartboost.client.ClientInit"
+    ]
+  },
+  "depends": {
+    "fabric": ">=0.85.0",
+    "fabric-api": "*"
+  }
+}
