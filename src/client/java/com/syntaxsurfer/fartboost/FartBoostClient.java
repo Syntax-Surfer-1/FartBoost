@@ -31,7 +31,7 @@ public class FartBoostClient implements ClientModInitializer {
 	private static KeyMapping fartKey;
 	private static final Map<UUID, Integer> cooldowns = new HashMap<>();
 	private static final Random random = new Random();
-	private static final int COOLDOWN_TICKS = 100; // 5s
+	private static final int COOLDOWN_TICKS = 100; // 5 seconds
 	private static final SoundEvent FART_SOUND = SoundEvent.createVariableRangeEvent(
 			ResourceLocation.fromNamespaceAndPath(FartBoost.MOD_ID, "fart")
 	);
@@ -65,19 +65,22 @@ public class FartBoostClient implements ClientModInitializer {
 
 			// Auto fart if potion effect active
 			if (player.hasEffect(FartBoost.FART_POTION_EFFECT)) {
-				if (currentTick - lastPotionFart >= 30) { // 1.5s
+				if (currentTick - lastPotionFart >= 30) { // every 1.5s
 					doFart(player, false, true);
 					lastPotionFart = currentTick;
 				}
 			}
 
+
+
+			// Key press fart
 			while (fartKey.consumeClick()) {
 				if (player.isSpectator()) return;
 
 				boolean superFart = player.isShiftKeyDown();
 				int hungerCost = superFart ? 5 : 2;
 
-				// Cooldown logic
+				// Cooldown check
 				if (FartBoost.cooldownEnabled) {
 					if (cooldowns.containsKey(id)) return;
 				} else {
@@ -120,7 +123,7 @@ public class FartBoostClient implements ClientModInitializer {
 		// Particles
 		spawnFartParticles(player, superFart ? 300 : 150, superFart ? 20.0f : 15.0f);
 
-		// Super fart extras
+		// Super fart extra effects
 		if (superFart && !fromPotion) {
 			applySuperFartEffects(player);
 		}
@@ -128,7 +131,7 @@ public class FartBoostClient implements ClientModInitializer {
 		// Potion self effects
 		if (fromPotion) {
 			player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 160, 0));
-			player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 160, 0));
+			player.addEffect(new MobEffectInstance(MobEffects.NAUSEA, 160, 0));
 		}
 	}
 
@@ -158,7 +161,7 @@ public class FartBoostClient implements ClientModInitializer {
 				e -> e != player);
 		for (LivingEntity entity : entities) {
 			entity.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 100, 0));
-			entity.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 100, 0));
+			entity.addEffect(new MobEffectInstance(MobEffects.NAUSEA, 100, 0));
 			Vec3 knockback = entity.position().subtract(player.position()).normalize().scale(1.5);
 			entity.push(knockback.x, 0.4, knockback.z);
 		}
